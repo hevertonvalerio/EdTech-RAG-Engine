@@ -1,5 +1,6 @@
 import os
 import logging
+from dotenv import load_dotenv
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
@@ -9,22 +10,24 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 # ignoring langchain-community deprecation warning
 from langchain_community.document_loaders import PyPDFLoader
 
+# Load environment variables
+load_dotenv()
 
 # Logs Config
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.os.getenv("LOGGING"), format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 # Project Config
 CONFIG = {
     "pdf_path": input("Enter the path of the PDF file: "), # UPDATE PATH
     "db_path": "./chroma_db",
-    "embedding_model": "sentence-transformers/all-MiniLM-L6-v2", # Embedding model
+    "embedding_model": os.getenv("EMBEDDING_MODEL"), # Embedding model
     "chunk_size": 1000,
     "chunk_overlap": 200   
 }
 
 def load_document(path):
-    "load document and return the pages"
+    """load document and return the pages"""
     if not os.path.exists(path):
         raise FileNotFoundError(f"File not found: {path}")
     
@@ -34,7 +37,7 @@ def load_document(path):
 
 
 def process_chuncks(documents):
-    "split documents into logical pieces"
+    """split documents into logical pieces"""
     logger.info("Creating chunks of text")
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=CONFIG["chunk_size"],
@@ -44,7 +47,7 @@ def process_chuncks(documents):
     return text_splitter.split_documents(documents)
 
 def index_in_vector(chunks):
-    "Index the chunks into the vector database"
+    """Index the chunks into the vector database"""
     logger.info(f"starting embedding if model {CONFIG['embedding_model']}")
     embeddings = HuggingFaceEmbeddings(model_name=CONFIG["embedding_model"])
 

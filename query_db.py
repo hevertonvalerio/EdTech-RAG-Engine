@@ -1,5 +1,5 @@
 import os
-# Isso força o Python a ignorar avisos antes mesmo de carregar as bibliotecas
+# That forces python to ignore warnings berfor load libs.
 os.environ["PYTHONWARNINGS"] = "ignore::DeprecationWarning"
 import logging
 from dotenv import load_dotenv
@@ -14,17 +14,18 @@ warnings.filterwarnings("ignore", category=UserWarning, module="langchain_commun
 warnings.filterwarnings("ignore", category=DeprecationWarning, module="langchain_community")
 
 
+# Load environment variables
+load_dotenv()
+
 # Logs Config
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.os.getenv("LOGGING"),
     format="%(message)s",
     datefmt="[%X]",
     handlers=[RichHandler(rich_tracebacks=True, markup=True)]
 )
 logger = logging.getLogger("rag_engine")
 
-# Load environment variables
-load_dotenv()
 
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
@@ -35,6 +36,7 @@ CONFIG = {
 
 
 def generate_response(query, docs):
+    """Use the prompt defined on prompt.py and the user message to send the question to the model, defined on MODEL_NAME."""
     context = "\n\n".join([doc.page_content for doc in docs])
 
     prompt = USER_TEMPLATE.format(question=query, context=context)
@@ -51,7 +53,7 @@ def generate_response(query, docs):
 
 
 def search_knowledge_base(query, k=3):
-    "Searching for the most relevant chunks in the vector database"
+    """Searching for the most relevant chunks in the vector database"""
     logger.info("Loading the embedding model")
     embeddings = HuggingFaceEmbeddings(model_name=CONFIG["embedding_model"])
 
@@ -74,7 +76,7 @@ def search_knowledge_base(query, k=3):
 
         print(f"\n[Excerpt {i+1}] pages: {page} | file: {source}")     
         print("-" * 70)
-        print(doc.page_content)
+        print(doc.page_content[:200].replace('\n', ' '))
         print("-" * 70)
     
     return results
@@ -83,11 +85,11 @@ def search_knowledge_base(query, k=3):
 if __name__ == "__main__":
 
     # 1. Define the topic and question
-    topic = "a transição do pensamento concreto para o formal na robótica"
+    topic = input("exemplo: a transição do pensamento concreto para o formal na robótica: ")
     question = f"Crie um quiz de múltipla escolha sobre: {topic}"
     
     # 2. Search on knowledge base and safe the results on variable docs
-    docs = search_knowledge_base(question)
+    docs = search_knowledge_base(topic)
     
     # 3. Generate the response with the documents founded on vector database
     response = generate_response(question, docs)
@@ -97,3 +99,4 @@ if __name__ == "__main__":
     print("Take a deep breath and do your best in this answer:")
     print("="*70)
     print(response)
+
