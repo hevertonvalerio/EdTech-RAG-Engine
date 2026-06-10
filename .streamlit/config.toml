@@ -1,0 +1,5 @@
+[global]
+logLevel = "error"
+
+[server]
+fileWatcherType = "none"

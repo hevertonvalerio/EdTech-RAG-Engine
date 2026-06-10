@@ -5,3 +5,8 @@ langchain-huggingface==1.2.2
 pypdf==6.13.0
 python-dotenv==1.2.2
 rich==15.0.0
+streamlit
+langchain_community
+sentence-transformers
+langchain_chroma
+langchain_huggingface

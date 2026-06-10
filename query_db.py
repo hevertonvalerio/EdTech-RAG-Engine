@@ -88,7 +88,7 @@ if __name__ == "__main__":
     topic = input("exemplo: a transição do pensamento concreto para o formal na robótica: ")
     question = f"Crie um quiz de múltipla escolha sobre: {topic}"
     
-    # 2. Search on knowledge base and safe the results on variable docs
+    # 2. Search on knowledge base and save the results on variable docs
     docs = search_knowledge_base(topic)
     
     # 3. Generate the response with the documents founded on vector database

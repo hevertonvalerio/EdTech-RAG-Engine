@@ -19,12 +19,12 @@ logger = logging.getLogger(__name__)
 
 # Project Config
 CONFIG = {
-    "pdf_path": input("Enter the path of the PDF file: "), # UPDATE PATH
     "db_path": "./chroma_db",
-    "embedding_model": os.getenv("EMBEDDING_MODEL"), # Embedding model
+    "embedding_model": os.getenv("EMBEDDING_MODEL"),
     "chunk_size": 1000,
     "chunk_overlap": 200   
 }
+
 
 def load_document(path):
     """load document and return the pages"""
@@ -59,9 +59,22 @@ def index_in_vector(chunks):
     )
     return vectorstore
     
-def main():
+def index_pdf(pdf_path):
     try:
-        docs = load_document(CONFIG["pdf_path"])
+        docs = load_document(pdf_path)
+        chunks = process_chuncks(docs)
+        vectorstore = index_in_vector(chunks)
+        logger.info(f"Success! Indexed {len(chunks)} chunks from {pdf_path}")
+        return len(chunks)
+    except Exception as e:
+        logger.error(f"Error indexing PDF: {e}")
+        traceback.print_exc()
+        raise e
+
+def main():
+    pdf_path = input("Enter the path of the PDF file: ")
+    try:
+        docs = load_document(pdf_path)
         chunks = process_chuncks(docs)
         vectorstore = index_in_vector(chunks)
 
